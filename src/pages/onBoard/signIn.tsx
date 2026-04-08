@@ -1,34 +1,34 @@
-import { useInitialSetUp } from "@/context/initialSetUp";
+import { useInitialSetUpStore } from "@/store/initialSetUp";
 import { PATH } from "@/router/path";
-import { Button, Input } from "@heroui/react";
 import { GoogleLogin } from "@react-oauth/google";
 import { jwtDecode } from "jwt-decode";
 import React from "react";
 import OnBoard from "./onBoard";
+import { useNavigate } from "react-router-dom";
+import { Button, Input } from "@heroui/react";
 
 export const SignIn = () => {
+  const navigate = useNavigate();
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
-  const { navigateTo, setUserLoginData } = useInitialSetUp();
+  const { setUserLoginData } = useInitialSetUpStore();
 
-  const handleSubmit = () => {
-
-  };
+  const handleSubmit = () => {};
 
   const handleOnSuccess = (loginResponse: any) => {
     console.log(loginResponse);
     const decodedData = jwtDecode<any>(loginResponse.credential);
     setUserLoginData(decodedData);
-    navigateTo(`${PATH.dashBoard}`);
-  }
+    navigate(`${PATH.dashBoard}`);
+  };
 
   const handleOnError = () => {
     console.log("Login Failed:");
-    navigateTo(`${PATH.signIn}`);
-  }
+    navigate(`${PATH.signIn}`);
+  };
 
   return (
-    <OnBoard>
+    <OnBoard >
       <div>
         <form onSubmit={() => handleSubmit()} className="flex flex-col gap-4">
           <Input
@@ -57,7 +57,10 @@ export const SignIn = () => {
         </div>
 
         <div className="flex justify-center">
-          <GoogleLogin onSuccess={(res) => handleOnSuccess(res)} onError={() => handleOnError()} />
+          <GoogleLogin
+            onSuccess={(res) => handleOnSuccess(res)}
+            onError={() => handleOnError()}
+          />
         </div>
       </div>
     </OnBoard>

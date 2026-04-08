@@ -4,9 +4,10 @@ import {
   LightModeIcon,
   LogoutIcon,
 } from "@/assets/icons";
-import { useInitialSetUp } from "@/context/initialSetUp";
-import { cn, Divider, Tooltip } from "@heroui/react";
+import { useInitialSetUpStore } from "@/store/initialSetUp";
+import { cn, Tooltip } from "@heroui/react";
 import React, { useMemo } from "react";
+import { useLocation } from "react-router-dom";
 
 export type NavItemProps = {
   id?: string;
@@ -30,12 +31,13 @@ export type SidebarProps = {
 };
 
 export const Sidebar = (props: SidebarProps) => {
+  const location = useLocation();
   const {
     className,
     items = [],
-    onSideBarChange = () => { },
-    onPressColorMode = () => { },
-    onPressLogout = () => { },
+    onSideBarChange = () => {},
+    onPressColorMode = () => {},
+    onPressLogout = () => {},
     profileImage,
     Logo = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR12mA3zSzz_9SWnLm4B_0OocWAQhpAnaAzYA&s",
     isColorMode,
@@ -43,7 +45,9 @@ export const Sidebar = (props: SidebarProps) => {
     userName,
     Email,
   } = props;
-  const { URLPath, isSideBarOpen, setIsSideBarOpen } = useInitialSetUp();
+  const { isSideBarOpen, setIsSideBarOpen } = useInitialSetUpStore();
+
+  const URLPath = location.pathname;
 
   // Sidebar action items (e.g., logout, dark mode toggle)
   const actionItems = useMemo(
@@ -60,7 +64,7 @@ export const Sidebar = (props: SidebarProps) => {
         icon: React.ReactNode;
         onPress?: () => void;
       }[],
-    [onPressLogout, onPressColorMode]
+    [onPressLogout, onPressColorMode],
   );
 
   return (
@@ -70,7 +74,7 @@ export const Sidebar = (props: SidebarProps) => {
           "absolute bg-secondary w-6 h-6 rounded-full top-7 right-0 cursor-pointer z-10 border-3 border-background",
           isSideBarOpen
             ? "md:translate-x-[14px] translate-x-[78px]"
-            : "rotate-180 translate-x-9 "
+            : "rotate-180 translate-x-9 ",
         )}
         role="button"
         onClick={() => setIsSideBarOpen(!isSideBarOpen)}
@@ -82,7 +86,7 @@ export const Sidebar = (props: SidebarProps) => {
       <div
         className={cn(
           "transition-opacity duration-300 ease-in-out animate-fade-in absolute md:static",
-          !isSideBarOpen && "hidden"
+          !isSideBarOpen && "hidden",
         )}
       >
         <div
@@ -93,7 +97,7 @@ export const Sidebar = (props: SidebarProps) => {
         <div
           className={cn(
             "h-screen gap-3 bg-background w-[4rem] flex flex-col items-center border-r-2 border-background-foreground z-10",
-            className
+            className,
           )}
         >
           {/* Sidebar Logo */}
@@ -107,13 +111,12 @@ export const Sidebar = (props: SidebarProps) => {
 
           {/* Sidebar Navigation Items */}
           <div className="grow flex flex-col items-center gap-3">
-            <Divider className="mb-1" />
             {items.map((item) => (
               <div key={item.key} className="relative">
                 <div
                   className={cn(
                     "rounded-xl h-[2.75rem] w-[2.7rem] flex justify-center items-center text-content1",
-                    URLPath === item.route && "bg-secondary bg-opacity-35"
+                    URLPath === item.route && "bg-secondary bg-opacity-35",
                   )}
                   role="button"
                   onClick={() => onSideBarChange(item)}
@@ -123,7 +126,7 @@ export const Sidebar = (props: SidebarProps) => {
                 <div
                   className={cn(
                     "absolute bg-secondary w-3.5 h-3.5 rounded-full top-[40%] right-0 translate-x-[18px] hidden",
-                    URLPath === item.route && "block"
+                    URLPath === item.route && "block",
                   )}
                 ></div>
               </div>
@@ -132,7 +135,6 @@ export const Sidebar = (props: SidebarProps) => {
 
           {/* Sidebar Action Items */}
           <div>
-            <Divider />
             <div className="w-full py-3 flex flex-col items-center gap-4">
               {actionItems.map((item, index) => (
                 <div
@@ -144,18 +146,21 @@ export const Sidebar = (props: SidebarProps) => {
                   {item.icon}
                 </div>
               ))}
-              <Divider />
             </div>
             {/* Profile Image */}
-            <Tooltip showArrow placement="right" content={
-              <div>
-                <h1>{userName}</h1>
-                <h3>{Email}</h3>
-              </div>
-            }
+            <Tooltip
+              content={
+                <div>
+                  <h1>{userName}</h1>
+                  <h3>{Email}</h3>
+                </div>
+              }
               classNames={{
                 base: ["before:bg-background-foreground "],
-                content: ["px-4 py-2 font-semibold ", "bg-background-foreground"],
+                content: [
+                  "px-4 py-2 font-semibold ",
+                  "bg-background-foreground",
+                ],
               }}
             >
               <div className="pb-3.5 flex justify-center">

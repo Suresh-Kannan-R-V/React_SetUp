@@ -1,16 +1,30 @@
 import { useRoutes } from "react-router-dom";
 import { privateRoutes, publicRoutes } from "./allRouter";
-import Layout from "@/layout/layout";
+import { Layout as AuthLayout } from "../layout/auth";
+import Layout from "../layout/pages";
+// import { ProtectedRoute, PublicRoute } from "./middleware";
 
 export const AppRoutes = () => {
-  const routes = useRoutes([
+  return useRoutes([
     {
-      path: "/",
-      element: <Layout />,
-      children: privateRoutes,
+      // element: <PublicRoute />,
+      children: [
+        {
+          path: "/auth",
+          element: <AuthLayout />,
+          children: publicRoutes,
+        },
+      ],
     },
-    ...publicRoutes,
+    {
+      // element: <ProtectedRoute />,
+      children: [
+        {
+          path: "",
+          element: <Layout />,
+          children: privateRoutes,
+        },
+      ],
+    },
   ]);
-
-  return routes;
 };

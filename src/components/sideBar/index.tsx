@@ -5,29 +5,28 @@ import {
   PeopleAltIcon,
   PersonIcon,
 } from "@/assets/icons";
-import { useInitialSetUp } from "@/context/initialSetUp";
+import { useInitialSetUpStore } from "@/store/initialSetUp";
 import { getSidebarMenu, useDarkMode } from "@/utils/sideMenu";
 import React from "react";
 import { NavItemProps, Sidebar } from "./sidebar";
 import { googleLogout } from "@react-oauth/google";
+import { useNavigate } from "react-router-dom";
 
 export const WithSideBar = () => {
-  const { navigateTo, userLoginData, setUserLoginData } = useInitialSetUp();
+  const navigate = useNavigate();
+  const { userLoginData, setUserLoginData } = useInitialSetUpStore();
   const { isDarkMode, toggleDarkMode } = useDarkMode();
 
   const onSideBarChange = (data: NavItemProps) => {
     if (data?.route) {
-      navigateTo(data?.route);
+      navigate(data?.route);
     }
   };
-
-  console.log(userLoginData, "jshdgjhaj");
 
   const handleLogOut = () => {
     googleLogout();
     setUserLoginData({});
-    navigateTo("/signIn");
-
+    navigate("/auth/signIn");
   };
 
   const getIcon = (key: string) => {
@@ -53,7 +52,7 @@ export const WithSideBar = () => {
         ...item,
         icon: getIcon(item?.key),
       })),
-    []
+    [],
   );
 
   return (

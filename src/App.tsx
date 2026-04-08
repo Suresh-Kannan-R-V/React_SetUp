@@ -1,11 +1,13 @@
-import { InitialSetUpStoreProvider } from "@/context/initialSetUp";
 import { AppRoutes } from "@/router/routes";
+import { HeroUIProvider } from "@heroui/react";
+
 function App() {
   return (
-    <InitialSetUpStoreProvider>
+    <HeroUIProvider>
       <AppRoutes />
-    </InitialSetUpStoreProvider>
+    </HeroUIProvider>
   );
 }
 
 export default App;
+

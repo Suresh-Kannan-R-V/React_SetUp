@@ -5,8 +5,8 @@ import { PATH } from "./path";
 
 const privateRoutes = [
   {
-    path: "/",
-    element: <Navigate to={PATH.signIn} />,
+    index: true,
+    element: <Navigate to={`${PATH.dashBoard}`} />,
   },
   {
     path: PATH.dashBoard,
