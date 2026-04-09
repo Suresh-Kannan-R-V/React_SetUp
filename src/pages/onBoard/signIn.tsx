@@ -28,7 +28,7 @@ export const SignIn = () => {
   };
 
   return (
-    <OnBoard >
+    <OnBoard>
       <div>
         <form onSubmit={() => handleSubmit()} className="flex flex-col gap-4">
           <Input

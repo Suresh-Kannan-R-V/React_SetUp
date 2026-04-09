@@ -5,7 +5,7 @@ import {
   LogoutIcon,
 } from "@/assets/icons";
 import { useInitialSetUpStore } from "@/store/initialSetUp";
-import { cn, Tooltip } from "@heroui/react";
+import { cn } from "@heroui/react";
 import React, { useMemo } from "react";
 import { useLocation } from "react-router-dom";
 
@@ -18,9 +18,9 @@ export type NavItemProps = {
 
 export type SidebarProps = {
   items?: NavItemProps[];
-  onSideBarChange: (data: NavItemProps) => void; // Callback for navigation change
-  onPressColorMode?: () => void; // Toggle dark mode callback
-  onPressLogout?: () => void; // Logout callback
+  onSideBarChange: (data: NavItemProps) => void;
+  onPressColorMode?: () => void;
+  onPressLogout?: () => void;
   isColorMode?: boolean;
   isDarkMode?: boolean;
   className?: string;
@@ -49,7 +49,12 @@ export const Sidebar = (props: SidebarProps) => {
 
   const URLPath = location.pathname;
 
-  // Sidebar action items (e.g., logout, dark mode toggle)
+  // Logic adapted from reference: check exact match OR sub-route match
+  const isRouteActive = (route?: string) => {
+    if (!route) return false;
+    return URLPath === route || URLPath.startsWith(route + "/");
+  };
+
   const actionItems = useMemo(
     () =>
       [
@@ -64,25 +69,24 @@ export const Sidebar = (props: SidebarProps) => {
         icon: React.ReactNode;
         onPress?: () => void;
       }[],
-    [onPressLogout, onPressColorMode],
+    [onPressLogout, onPressColorMode, isDarkMode, isColorMode],
   );
 
   return (
     <div className="relative">
-      <div
+      {/* Sidebar Toggle Button */}
+      <button
         className={cn(
-          "absolute bg-secondary w-6 h-6 rounded-full top-7 right-0 cursor-pointer z-10 border-3 border-background",
+          "absolute bg-white p-1 size-5 flex items-center justify-center rounded-full top-7 right-0 cursor-pointer z-10 border-2",
           isSideBarOpen
             ? "md:translate-x-[14px] translate-x-[78px]"
             : "rotate-180 translate-x-9 ",
         )}
-        role="button"
         onClick={() => setIsSideBarOpen(!isSideBarOpen)}
       >
-        <div className="absolute top-[-5px] left-[-3px] text-background">
-          <ArrowLeftIcon />
-        </div>
-      </div>
+        <ArrowLeftIcon size={18} className="absolute text-background" />
+      </button>
+
       <div
         className={cn(
           "transition-opacity duration-300 ease-in-out animate-fade-in absolute md:static",
@@ -94,9 +98,10 @@ export const Sidebar = (props: SidebarProps) => {
           onClick={() => setIsSideBarOpen(!isSideBarOpen)}
           role="button"
         />
+
         <div
           className={cn(
-            "h-screen gap-3 bg-background w-[4rem] flex flex-col items-center border-r-2 border-background-foreground z-10",
+            "h-screen gap-3 bg-background w-[4rem] flex flex-col items-center border-r-2 border-slate-300 z-10",
             className,
           )}
         >
@@ -109,37 +114,51 @@ export const Sidebar = (props: SidebarProps) => {
             />
           </div>
 
-          {/* Sidebar Navigation Items */}
+          {/* Nav Items */}
           <div className="grow flex flex-col items-center gap-3">
-            {items.map((item) => (
-              <div key={item.key} className="relative">
-                <div
-                  className={cn(
-                    "rounded-xl h-[2.75rem] w-[2.7rem] flex justify-center items-center text-content1",
-                    URLPath === item.route && "bg-secondary bg-opacity-35",
-                  )}
-                  role="button"
-                  onClick={() => onSideBarChange(item)}
-                >
-                  {item.icon}
+            {items.map((item) => {
+              const active = isRouteActive(item.route);
+              return (
+                <div key={item.key} className="relative group">
+                  <div
+                    className={cn(
+                      "rounded-xl h-[2.75rem] w-[2.7rem] flex justify-center items-center transition-all duration-300",
+                      // Colors adapted from reference: bg-indigo-500/20 for active
+                      active
+                        ? "bg-indigo-500/20 text-indigo-600 scale-110"
+                        : "text-slate-500 hover:bg-indigo-500/10 hover:text-indigo-500",
+                    )}
+                    role="button"
+                    onClick={() => onSideBarChange(item)}
+                  >
+                    {/* Applying stroke width logic if icons support it */}
+                    {item.icon}
+                  </div>
+
+                  {/* Indigo indicator dot/bar */}
+                  <div
+                    className={cn(
+                      "absolute bg-indigo-600 w-1 h-5 rounded-full left-[-10px] top-1/2 -translate-y-1/2 transition-opacity",
+                      active ? "opacity-100" : "opacity-0",
+                    )}
+                  />
                 </div>
-                <div
-                  className={cn(
-                    "absolute bg-secondary w-3.5 h-3.5 rounded-full top-[40%] right-0 translate-x-[18px] hidden",
-                    URLPath === item.route && "block",
-                  )}
-                ></div>
-              </div>
-            ))}
+              );
+            })}
           </div>
 
           {/* Sidebar Action Items */}
           <div>
             <div className="w-full py-3 flex flex-col items-center gap-4">
-              {actionItems.map((item, index) => (
+              {actionItems.map((item) => (
                 <div
-                  key={index}
-                  className="rounded-xl h-[2.75rem] w-[2.7rem] flex justify-center items-center bg-secondary bg-opacity-35 text-content1"
+                  key={item.key}
+                  className={cn(
+                    "rounded-xl h-[2.75rem] w-[2.7rem] flex justify-center items-center transition-colors",
+                    item.key === "logout"
+                      ? "text-rose-500 hover:bg-rose-500/10"
+                      : "text-slate-500 hover:bg-indigo-500/10 hover:text-indigo-500",
+                  )}
                   role="button"
                   onClick={() => item?.onPress?.()}
                 >
@@ -147,32 +166,20 @@ export const Sidebar = (props: SidebarProps) => {
                 </div>
               ))}
             </div>
+
             {/* Profile Image */}
-            <Tooltip
-              content={
-                <div>
-                  <h1>{userName}</h1>
-                  <h3>{Email}</h3>
-                </div>
-              }
-              classNames={{
-                base: ["before:bg-background-foreground "],
-                content: [
-                  "px-4 py-2 font-semibold ",
-                  "bg-background-foreground",
-                ],
-              }}
+            <div
+              className="pb-3.5 flex justify-center"
+              title={`${userName ?? ""}${userName && Email ? " — " : ""}${Email ?? ""}`}
             >
-              <div className="pb-3.5 flex justify-center">
-                <img
-                  alt="P"
-                  className="rounded-full w-10 h-10 cursor-pointer"
-                  src={
-                    typeof profileImage === "string" ? profileImage : undefined
-                  }
-                />
-              </div>
-            </Tooltip>
+              <img
+                alt={userName ? `Profile of ${userName}` : "Profile"}
+                className="rounded-full w-10 h-10 cursor-pointer border-2 border-transparent hover:border-indigo-500 transition-all"
+                src={
+                  typeof profileImage === "string" ? profileImage : undefined
+                }
+              />
+            </div>
           </div>
         </div>
       </div>

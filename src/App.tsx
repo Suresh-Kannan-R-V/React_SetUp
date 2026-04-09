@@ -1,13 +1,7 @@
 import { AppRoutes } from "@/router/routes";
-import { HeroUIProvider } from "@heroui/react";
 
 function App() {
-  return (
-    <HeroUIProvider>
-      <AppRoutes />
-    </HeroUIProvider>
-  );
+  return <AppRoutes />;
 }
 
 export default App;
-
